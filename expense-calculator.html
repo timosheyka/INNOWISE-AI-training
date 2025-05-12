@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Calculator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      input,
+      button {
+        margin: 5px 0;
+        padding: 10px;
+        width: 100%;
+      }
+      .results {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Monthly Expense Calculator</h1>
+      <input
+        type="text"
+        id="expenseCategory"
+        placeholder="Enter category (e.g., Food)"
+      />
+      <input
+        type="number"
+        id="expenseAmount"
+        placeholder="Enter amount (e.g., 100)"
+      />
+      <button onclick="addExpense()">Add Expense</button>
+      <table
+        border="1"
+        style="border-radius: 5px; width: 100%; margin-top: 10px"
+      >
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody id="expenseTable">
+          <!-- Existing expenses will be displayed here -->
+        </tbody>
+      </table>
+      <button onclick="calculateTotal()">Calculate Total Expenses</button>
+      <button onclick="calculateAverage()">
+        Calculate Average Daily Expense
+      </button>
+      <button onclick="calculateTop3()">Find Top 3 Largest Expenses</button>
+      <div class="results">
+        <h3>Results:</h3>
+        <p id="result"></p>
+      </div>
+    </div>
+
+    <script>
+      function calculateTop3() {
+        if (expensesList.length === 0) {
+          document.getElementById("result").textContent =
+            "No expenses to analyze.";
+          return;
+        }
+
+        const top3Expenses = [...expensesList]
+          .sort((a, b) => b.price - a.price)
+          .slice(0, 3);
+
+        const resultText = top3Expenses
+          .map(
+            (expense, index) =>
+              `${index + 1}. ${expense.category}: $${expense.price.toFixed(2)}`
+          )
+          .join("\n");
+
+        document.getElementById(
+          "result"
+        ).textContent = `Top 3 Largest Expenses:\n${resultText}`;
+      }
+
+      const expensesList = [];
+
+      function calculateAverage() {
+        if (expensesList.length === 0) {
+          document.getElementById("result").textContent =
+            "No expenses to calculate average.";
+          return;
+        }
+
+        const total = expensesList.reduce(
+          (sum, expense) => sum + expense.price,
+          0
+        );
+        const average = total / 30;
+
+        document.getElementById(
+          "result"
+        ).textContent = `Average Daily Expense: $${average.toFixed(2)}`;
+      }
+
+      function addExpense() {
+        const categoryInput = document
+          .getElementById("expenseCategory")
+          .value.trim();
+        const amountInput = document
+          .getElementById("expenseAmount")
+          .value.trim();
+
+        if (!categoryInput || !amountInput || isNaN(parseFloat(amountInput))) {
+          alert("Please enter a valid category and amount.");
+          return;
+        }
+
+        const existingExpense = expensesList.find(
+          (expense) =>
+            expense.category.toLowerCase() === categoryInput.toLowerCase()
+        );
+
+        if (existingExpense) {
+          existingExpense.price += parseFloat(amountInput);
+        } else {
+          expensesList.push({
+            category: categoryInput,
+            price: parseFloat(amountInput),
+          });
+        }
+
+        updateExpenseTable();
+
+        document.getElementById("expenseCategory").value = "";
+        document.getElementById("expenseAmount").value = "";
+      }
+
+      function updateExpenseTable() {
+        const tableBody = document.getElementById("expenseTable");
+        tableBody.innerHTML = expensesList
+          .map(
+            (expense) =>
+              `<tr><td>${expense.category}</td><td>$${expense.price.toFixed(
+                2
+              )}</td></tr>`
+          )
+          .join("");
+      }
+
+      function calculateTotal() {
+        const total = expensesList.reduce(
+          (sum, expense) => sum + expense.price,
+          0
+        );
+        document.getElementById(
+          "result"
+        ).textContent = `Total Expenses: $${total.toFixed(2)}`;
+      }
+    </script>
+  </body>
+</html>
